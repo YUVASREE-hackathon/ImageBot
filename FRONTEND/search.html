@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search Image - ImageBot</title>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="features.css" />
+  <style>
+    /* Retaining Navbar and General Styles */
+    .results {
+      width: 90%;
+      margin: 20px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+.dropdown-menu li {
+    margin-top:16px;
+    list-style: none;
+    width:150px;
+    margin-bottom:7px;
+    margin-right:7px;
+    margin-left:7px;
+}
+
+/* Elephant Image Styling */
+.elephant-image {
+  display: none;
+  width: 30%; /* Reduced from 50% to 30% */
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+
+    /* Styled Table (Hidden Initially) */
+    .styled-table {
+      width: 80%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      font-family: 'Orbitron', sans-serif;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      display: none;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .styled-table th, .styled-table td {
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 12px;
+      text-align: left;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+<nav>
+            <div class="logo">ImageBot</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+                <li><a href="reviews.html">Reviews</a></li>
+                <li class="dropdown">
+                    <a href="#">Features &#9662;</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="search.html">Search Image</a></li>
+                        <li style="margin-top:1px;"><a href="features.html">Analyze Image</a></li>
+                    </ul>
+                </li>
+
+                <li><a href="support.html">Support</a></li>
+                <li><a href="login.html" class="btn">Login</a></li>
+            </ul>
+        </nav>
+  </header>
+
+  <br /><br /><br />
+
+  <div class="chat-messages">
+    <div class="chat-input">
+      <h2>🔍 Search for an Elephant Image</h2>
+      <br />
+      <input type="text" id="searchQuery" placeholder="Enter elephant species (e.g., 'asian', 'african bush')" />
+      <button onclick="searchElephant()" class="btn-glow">Search</button>
+    </div>
+  </div>
+
+  <!-- Elephant Image -->
+  <img id="elephantImage" class="elephant-image" src="" alt="Elephant Image">
+
+  <!-- Search Results Table -->
+  <h2 id="tableTitle" style="text-align: center; display: none;">Search Results</h2>
+  <table class="styled-table" id="searchResultsTable">
+    <thead>
+      <tr>
+        <th>Attribute</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody id="searchResults"></tbody>
+  </table>
+
+  <script>
+    function searchElephant() {
+      let query = document.getElementById("searchQuery").value;
+      let resultContainer = document.getElementById("searchResults");
+      let table = document.getElementById("searchResultsTable");
+      let tableTitle = document.getElementById("tableTitle");
+      let elephantImage = document.getElementById("elephantImage");
+
+      if (!query) {
+        resultContainer.innerHTML = "<tr><td colspan='2'>Please enter an elephant species.</td></tr>";
+        table.style.display = "table";
+        tableTitle.style.display = "block";
+        return;
+      }
+
+      resultContainer.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
+      table.style.display = "table";
+      tableTitle.style.display = "block";
+
+fetch("http://127.0.0.1:5002/search?query=" + encodeURIComponent(query))
+
+      .then(response => response.json())
+      .then(data => {
+          if (data.error) {
+              // If there's an error (e.g. "No results found"), display it
+              resultContainer.innerHTML = `<tr><td colspan='2'>${data.error}</td></tr>`;
+              elephantImage.style.display = "none";
+              return;
+          }
+
+          // Build the table rows with data
+          let html = `
+              <tr><td>Species Name</td><td>${data.species_name || "Not available"}</td></tr>
+              <tr><td>Scientific Name</td><td>${data.scientific_name || "Not available"}</td></tr>
+              <tr><td>Habitat</td><td>${data.habitat || "Not available"}</td></tr>
+              <tr><td>Size</td><td>${data.size || "Not available"}</td></tr>
+              <tr><td>Weight</td><td>${data.weight || "Not available"}</td></tr>
+              <tr><td>Diet</td><td>${data.diet || "Not available"}</td></tr>
+              <tr><td>Lifespan</td><td>${data.lifespan || "Not available"}</td></tr>
+              <tr><td>Behavior</td><td>${data.behavior || "Not available"}</td></tr>
+              <tr><td>Population Estimate</td><td>${data.population_estimate || "Not available"}</td></tr>
+              <tr><td>Threats</td><td>${data.threats || "Not available"}</td></tr>
+              <tr><td>Conservation Status</td><td>${data.conservation_status || "Not available"}</td></tr>
+              <tr><td>Geographical Distribution</td><td>${data.geographical_distribution || "Not available"}</td></tr>
+          `;
+
+          resultContainer.innerHTML = html;
+
+          // Display the image if available
+          if (data.image_url) {
+              elephantImage.src = "http://127.0.0.1:5000" + data.image_url;
+              elephantImage.style.display = "block";
+          } else {
+              elephantImage.style.display = "none";
+          }
+      })
+      .catch(error => {
+          console.error("❌ Fetch Error:", error);
+          resultContainer.innerHTML = "<tr><td colspan='2'>Error fetching data</td></tr>";
+          elephantImage.style.display = "none";
+      });
+    }
+  </script>
+
+</body>
+</html>

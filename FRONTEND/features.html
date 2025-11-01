@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elephant Species Detector</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="features.css">
+  <style>
+    /* Dropdown styling */
+    .dropdown { position: relative; }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      min-width: 160px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+      border-radius: 5px;
+      padding: 5px 0;
+      z-index: 1000;
+      background: #0a0f1a;
+    }
+    .dropdown-menu li {
+      margin-top: 16px;
+      list-style: none;
+      width: 150px;
+      margin: 7px;
+    }
+    .dropdown-menu li a {
+      color: white;
+      padding: 10px 15px;
+      display: block;
+      text-align: left;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+    .dropdown-menu li a:hover {
+      background: rgba(255, 255, 255, 0.5);
+      color: black;
+      border-radius: 3px;
+    }
+    .dropdown:hover .dropdown-menu { display: block; }
+
+    .container {
+      display: flex;
+      width: 1100px;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 50px;
+    }
+
+    .chat-container {
+      width: 45%;
+      margin-top: 18px;
+      padding: 20px;
+      background: linear-gradient(270deg, #1e3c72, #2a5298);
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3);
+    }
+
+    .chat-header {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .chat-messages {
+      height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-input {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .chat-input button {
+      margin-left: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #ffcc00;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .user-message, .bot-message {
+      text-align: left;
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin: 5px 0;
+    }
+
+    .user-message {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .bot-message {
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">ImageBot</div>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="reviews.html">Reviews</a></li>
+        <li class="dropdown">
+          <a href="#">Features &#9662;</a>
+          <ul class="dropdown-menu">
+            <li><a href="search.html">Search Image</a></li>
+            <li><a href="features.html">Analyze Image</a></li>
+          </ul>
+        </li>
+        <li><a href="support.html">Support</a></li>
+        <li><a href="login.html" class="btn">Login</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="header1"><br><br><br>
+    <h1>🔍 Analyze Elephant Species</h1>
+  </div>
+
+  <div class="container">
+    <!-- Image Upload and Analysis Section -->
+    <section class="upload-section">
+      <h2>📷 Upload an Elephant Image</h2><br><br>
+      <label class="custom-file-upload">
+        <input type="file" id="imageUpload" accept="image/*" onchange="previewImage()">
+        Choose an Image
+      </label>
+      <div id="imagePreview"></div>
+      <button id="analyzeBtn" class="btn-glow" onclick="analyzeElephant()">Analyze Image</button>
+      <p id="statusMessage"></p>
+    </section>
+
+    <!-- Chat System Section -->
+    <div class="chat-container">
+      <div class="chat-header">Elephant Query System</div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Ask about the detected elephant species">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://127.0.0.1:5003";
+    let detectedSpecies = "";
+
+    function previewImage() {
+      let fileInput = document.getElementById("imageUpload");
+      let previewDiv = document.getElementById("imagePreview");
+
+      if (fileInput.files.length === 0) {
+        previewDiv.innerHTML = "";
+        return;
+      }
+
+      let file = fileInput.files[0];
+      let reader = new FileReader();
+
+      reader.onload = function (e) {
+        previewDiv.innerHTML = `<img src="${e.target.result}" class="uploaded-image" style="max-width: 100%; height: auto;">`;
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    async function analyzeElephant() {
+      let fileInput = document.getElementById("imageUpload");
+      let analyzeBtn = document.getElementById("analyzeBtn");
+      let statusMessage = document.getElementById("statusMessage");
+      let chatBox = document.getElementById("chatMessages");
+
+      if (fileInput.files.length === 0) {
+        alert("Please upload an image first.");
+        return;
+      }
+
+      let formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      analyzeBtn.disabled = true;
+      statusMessage.textContent = "Analyzing image... Please wait.";
+
+      try {
+        let response = await fetch(`${API_URL}/analyze_elephant`, { method: "POST", body: formData });
+        let data = await response.json();
+        detectedSpecies = data.species;
+
+        chatBox.innerHTML += `<div class="bot-message"><strong>Bot:</strong> Detected Species - ${detectedSpecies}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        statusMessage.textContent = "Analysis complete.";
+      } catch (error) {
+        statusMessage.textContent = "Failed to analyze image. Check if the server is running.";
+      }
+
+      analyzeBtn.disabled = false;
+    }
+
+    async function sendMessage() {
+      let userInput = document.getElementById("userInput").value.trim();
+      if (!userInput) {
+        alert("Please enter a query.");
+        return;
+      }
+      if (!detectedSpecies) {
+        alert("Please analyze an image first.");
+        return;
+      }
+
+      let chatBox = document.getElementById("chatMessages");
+      chatBox.innerHTML += `<div class="user-message"><strong>You:</strong> ${userInput}</div>`;
+
+      try {
+        let response = await fetch(`${API_URL}/query_species?species=${encodeURIComponent(detectedSpecies)}&query=${encodeURIComponent(userInput)}`);
+        let data = await response.json();
+        const reply = data.answer || "No relevant information found.";
+        chatBox.innerHTML += `<div class="bot-message"><strong>Bot:</strong> ${reply}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+      } catch (error) {
+        chatBox.innerHTML += `<div style="color: red;"><strong>Error:</strong> Could not connect to the server.</div>`;
+      }
+
+      document.getElementById("userInput").value = "";
+    }
+  </script>
+</body>
+</html>

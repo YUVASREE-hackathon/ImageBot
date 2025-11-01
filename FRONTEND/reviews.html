@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews - ImageBot</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .review-container {
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top:100px;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease-in-out;
+        }
+        .review-container:hover {
+            transform: scale(1.02);
+        }
+        .review {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            box-shadow: 0px 0px 8px rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .review:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .edit-btn, .delete-btn {
+            background: #ffdb4d;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 10px;
+            transition: 0.3s;
+        }
+        .edit-btn:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+        .delete-btn {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .edit-btn {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+        .review-form {
+            margin-top: 20px;
+        }
+        .review-form input, .review-form textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+        }
+        .review-form textarea {
+            resize: none;
+        }
+        .review-form input::placeholder, .review-form textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .review-form button {
+            background: linear-gradient(45deg, #FFA500, #FFD700);
+            color: black;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        .review-form button:hover {
+            background: #ffdb4d;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">ImageBot</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="reviews.html">Reviews</a></li>
+                <li><a href="support.html">Support</a></li>
+                <li><a href="login.html" class="btn">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="review-container">
+        <h2>User Reviews</h2>
+         <div id="reviews">
+            <div class="review"><strong>Ram:</strong> ImageBot is amazing! The AI recognition is so accurate.</div>
+            <div class="review"><strong>Ramya:</strong> Fantastic chatbot. Helped me identify elephants instantly!</div>
+        </div>
+        
+
+        <form class="review-form" id="reviewForm">
+            <input type="text" id="name" placeholder="Your Name" required>
+            <textarea id="reviewText" rows="3" placeholder="Write your review..." required></textarea>
+            <button type="submit">Submit Review</button>
+        </form>
+    </div>
+    
+   <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let reviewsContainer = document.getElementById("reviews");
+
+        // Load saved reviews from localStorage
+        let savedReviews = JSON.parse(localStorage.getItem("reviews")) || [];
+        function renderReviews() {
+            reviewsContainer.innerHTML = "";
+            savedReviews.forEach((review, index) => {
+                let reviewElement = document.createElement("div");
+                reviewElement.classList.add("review");
+                reviewElement.innerHTML = `
+                    <span><strong>${review.name}:</strong> ${review.text}</span>
+                    <div>
+                        <button class="edit-btn" onclick="editReview(${index})">Edit</button>
+                        <button class="delete-btn" onclick="deleteReview(${index})">Delete</button>
+                    </div>
+                `;
+                reviewsContainer.appendChild(reviewElement);
+            });
+        }
+        renderReviews();
+
+        document.getElementById("reviewForm").onsubmit = function(event) {
+            event.preventDefault();
+            let name = document.getElementById("name").value;
+            let reviewText = document.getElementById("reviewText").value;
+            if (name && reviewText) {
+                savedReviews.push({ name, text: reviewText });
+                localStorage.setItem("reviews", JSON.stringify(savedReviews));
+                renderReviews();
+                document.getElementById("reviewForm").reset();
+            }
+        };
+
+        window.deleteReview = function(index) {
+            savedReviews.splice(index, 1);
+            localStorage.setItem("reviews", JSON.stringify(savedReviews));
+            renderReviews();
+        };
+
+        window.editReview = function(index) {
+            let newText = prompt("Edit your review:", savedReviews[index].text);
+            if (newText !== null) {
+                savedReviews[index].text = newText;
+                localStorage.setItem("reviews", JSON.stringify(savedReviews));
+                renderReviews();
+            }
+        };
+    });
+</script>
+
+</body>
+</html>

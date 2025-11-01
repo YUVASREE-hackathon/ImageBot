@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageBot - AI Chatbot</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">ImageBot</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="reviews.html">Reviews</a></li>
+                <li><a href="support.html">Support</a></li>
+                <li><a href="login.html" class="btn">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>Revolutionizing Image Recognition with AI</h1>
+        <p>Experience seamless AI-powered chatbot interactions</p>
+        <a href="signup.html" class="cta-button">Get Started</a>
+    </section>
+
+    <section class="features">
+        <h2>Why Choose ImageBot?</h2>
+        <div class="feature-grid">
+            <div class="feature-item" onclick="toggleFeature('feature1', this)">
+                <h3>Smart AI</h3>
+                <p>Experience high-accuracy image recognition with advanced AI algorithms.</p>
+                <div class="feature-content" id="feature1">
+                    <p>ImageBot’s AI system uses deep learning and computer vision to recognize images with near-human accuracy. It adapts to various environments, making it suitable for medical imaging, security, and real-time object detection.</p>
+                </div>
+            </div>
+            <div class="feature-item" onclick="toggleFeature('feature2', this)">
+                <h3>User Friendly</h3>
+                <p>Easy-to-use interface designed for users of all backgrounds.</p>
+                <div class="feature-content" id="feature2">
+                    <p>ImageBot’s intuitive UI allows users to upload images, chat with AI, and receive results in seconds. Whether you're a beginner or an AI expert, the platform ensures a seamless experience.</p>
+                </div>
+            </div>
+            <div class="feature-item" onclick="toggleFeature('feature3', this)">
+                <h3>Secure & Private</h3>
+                <p>Data encryption ensures your interactions remain private.</p>
+                <div class="feature-content" id="feature3">
+                    <p>ImageBot follows the latest encryption protocols, ensuring that your data is never stored or shared. With end-to-end security, you can trust that your interactions are confidential.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 ImageBot | AI-Powered Chatbot</p>
+    </footer>
+
+    <script>
+        function toggleFeature(id, element) {
+            let contents = document.querySelectorAll('.feature-content');
+            let items = document.querySelectorAll('.feature-item');
+
+            contents.forEach(content => {
+                if (content.id !== id) {
+                    content.classList.remove("active");
+                }
+            });
+
+            items.forEach(item => {
+                if (item !== element) {
+                    item.classList.remove("expanded");
+                }
+            });
+
+            let currentContent = document.getElementById(id);
+            currentContent.classList.toggle("active");
+            element.classList.toggle("expanded");
+        }
+    </script>
+</body>
+</html>

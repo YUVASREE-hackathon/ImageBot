@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageBot Support Chatbot</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #2a5298, #1e3c72);
+            color: white;
+        }
+header {
+    background: #0a0f1a;
+    padding: 15px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1100px;
+    margin: auto;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+}
+
+.nav-links li {
+    margin: 0 15px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+}
+
+
+        .chat-container {
+            width: 400px;
+            height: 500px;
+            border-radius: 15px;
+	    background: rgba(255, 255, 255, 0.1);
+   	    backdrop-filter: blur(10px);
+            box-shadow: 0 5px 10px rgba(255, 255, 255, 0.3);
+            display: flex;
+	    animation: fadeIn 1s ease-in-out;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: #ffcc00;
+            color: #1e3c72;
+            text-align: center;
+            padding: 15px;
+            font-weight: bold;
+	    text-shadow: 0 0 10px #FFD700, 0 0 20px #FFA500;
+            animation: glow 1.5s infinite alternate;
+
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            border-bottom: 1px solid #fff;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+ 	     box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5);
+
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        .chat-input button {
+            padding: 10px 15px;
+	    background: linear-gradient(45deg, #FFA500, #FFD700);
+ 	    transition: 0.3s;
+   	    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+	    border-radius: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ffcc00;
+            color: #1e3c72;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<header>
+        <nav>
+            <div class="logo">ImageBot</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="features.html">Features</a></li>
+                <li><a href="reviews.html">Reviews</a></li>
+                <li><a href="support.html">Support</a></li>
+                <li><a href="login.html" class="btn">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="chat-container">
+        <div class="chat-header">ImageBot Support Chatbot</div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Ask me anything...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+    function sendMessage() {
+        const input = document.getElementById('userInput');
+        const message = input.value.trim();
+        if (message === '') return;
+
+        const chatBox = document.getElementById('chatMessages');
+        chatBox.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
+
+        // Send message to Flask backend
+        fetch('http://127.0.0.1:5001/support_chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            chatBox.innerHTML += `<div><strong>Bot:</strong> ${data.reply}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to latest message
+        })
+        .catch(error => {
+            chatBox.innerHTML += `<div style="color: red;"><strong>Error:</strong> Could not connect to server.</div>`;
+        });
+
+        input.value = ''; // Clear input field
+    }
+</script>
+
+</body>
+</html>
